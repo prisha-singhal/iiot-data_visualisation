@@ -25,6 +25,8 @@ highly efficient open source time-series database that connects seamlessly with 
 
 [Querying data](https://docs.influxdata.com/influxdb/cloud/api-guide/client-libraries/python/)
 
+[Using Docker](https://www.youtube.com/watch?v=QGG_76OmRnA&t=188s)
+
 
 
 
