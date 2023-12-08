@@ -15,32 +15,49 @@ query = ('''
    |> filter(fn: (r) => r._value > 4.0)
    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)
    |> yield(name: "mean")
+                         |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
                          ''')
-result = query_api.query_data_frame(query=query, org="adea8e270e3f09e0")
+result = query_api.query_data_frame(org="adea8e270e3f09e0", query=query)
 results = []
-print(result)
-pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_columns', None)
+# print(result)
 
 for table in result:
-#   print(table)
-  for record in table.records:
-    # print(record.values)
-    results.append((record.get_field(), record.get_value(), record.get_time()))
+  print(table)
+  # for record in table.records:
+  #   print(record.values)
+  #   results.append(( record.get_value(), record.get_time()))
+print(table.columns.values)
+selected_columns = table[['_time', 'currentValue']]
+
+new_df = pd.DataFrame(selected_columns)
+new_df.set_index('_time',inplace=True)
+print(new_df)
+
+#writing data
+bucket="ReadData_Bucket"
+
+write_api = client.write_api(write_options=SYNCHRONOUS)
+# new_results = pd.DataFrame.from_dict(results)
+# new_results.set_index('timeStamp',inplace=True)
+
+write_api.write(bucket, org="adea8e270e3f09e0", record=new_df, data_frame_measurement_name='CurrentValues>4.0')
+
+
+
+
+
 # df=pd.DataFrame(result)
 # print(df)
 # print(results)
 # data = {results}
-new_results = pd.DataFrame.from_dict(results)
+# print(new_results)
 # custom_index = ['Field','Value','Time']
 # new_results = new_results.set_index(pd.Index(custom_index))
 # print(new_results)
 
 # data = [results]
 # df=pd.Dataframe(data, columns=['currentValue',''])
-
-
-
-
 # for table in results:
 #   print(table)
 #   for record in table.records:
